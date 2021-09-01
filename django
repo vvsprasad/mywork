@@ -1,0 +1,194 @@
+Django Circle
+Home
+Python
+Django
+Google Cloud Tutorials & Methods
+Contact Us
+django-custom-log-formatter
+How to create different custom logs formatter for Info, Warning and Error logs in Django web application?
+Last Updated on May 18, 2020 by MaulikLeave a Comment
+
+If you are interested in something which helps you customize the logs format for Django web applications running in production, you have landed at the perfect place. Django web framework provides the flexibility to customize the format of your log. I would love to have complete information in logs rather than having not required out there and missing vital information like which file and which line number wrote this log. I want to have a log level, file name, line number, and message in the log information.
+
+What is custom log formatter in Django web applications?
+For example,
+
+Below is the Info logs format which we want to have with our Django web application
+
+<Log Level>: <Message> - <File Location>:<Line No>
+Below is the Warning logs format which we want to have with our Django web application
+
+<Log Level>: <Message>
+Below is the Error logs format which we want to have with our Django web application
+
+<Log Level>: <Datetime> <Filename> <Http Method> <Message> <File Location> <Line No.>
+Let us create one custom logs formatter which can have log level, insert line number, and file name as mentioned above.
+
+What is the need for a custom log formatter for different log levels for the Django web application?
+In the working world, as the product expands in production with an increase in user base, scalability, and maintenance of the application start becoming a challenge.
+To equip the support team with the right information required to file a bug ticket for the Django application.
+With an increase in the volume of load on the Django web application server, you would like to avoid storing unnecessary information parameters from a specific log level. And would like to get more attributes of information for critical log levels.
+Custom log formats prove an excellent approach when your Django web application is live and has many users.
+But it is always a good practice to have this type of standard implemented for all Django web application development projects.
+Steps to implement custom log formatter for different log levels in Django web application
+Create a custom Log Filter Class.
+Update custom logging settings in settings.py
+Add sample logs from views file.
+View different log formats for Info, Warning, and Error logs.
+Please check custom log formatter for different log levels Django application repository on Github
+
+Create a custom Log Filter Class.
+Please check :
+
+├── logging_formatter/log_middleware.py
+
+import logging
+ 
+class FilterLevels(logging.Filter):
+   def __init__(self, filter_levels=None):
+       super(FilterLevels, self).__init__()
+       self._filter_levels = filter_levels
+ 
+   def filter(self, record):
+       if record.levelname in self._filter_levels:
+         return True
+       return False
+We have created a custom filter by extending “logging.Filter” class. It helps choose different log formats for different log levels of the Django web application.
+Update custom logging settings in settings.py
+Let us update logging configuration in settings.py as follows:
+LOGGING = {
+   'version': 1,
+   'disable_existing_loggers': True,
+   'filters': {
+       'filter_info_level': {
+           '()': 'logging_formatter.log_middleware.FilterLevels',
+           'filter_levels' : [
+               "INFO"
+           ]
+       },
+       'filter_error_level': {
+           '()': 'logging_formatter.log_middleware.FilterLevels',
+           'filter_levels' : [
+               "ERROR"
+           ]
+       },
+       'filter_warning_level': {
+           '()': 'logging_formatter.log_middleware.FilterLevels',
+           'filter_levels' : [
+               "WARNING"
+           ]
+       }
+   },
+   'formatters': {
+       'info-formatter': {
+           'format': '%(levelname)s : %(message)s - [in %(pathname)s:%(lineno)d]'
+       },
+       'error-formatter': {
+           'format': '%(levelname)s : %(asctime)s {%(module)s}
+ [%(funcName)s] %(message)s- [in %(pathname)s:%(lineno)d]',
+           'datefmt': '%Y-%m-%d %H:%M'
+       },
+       'short': {
+           'format': '%(levelname)s : %(message)s'
+       }
+   },
+   'handlers': {
+       'customHandler_1': {
+           'formatter': 'info-formatter',
+           'class': 'logging.StreamHandler',
+           'filters': ['filter_info_level'],
+       },
+       'customHandler_2': {
+           'formatter': 'error-formatter',
+           'class': 'logging.StreamHandler',
+           'filters': ['filter_error_level'],
+       },
+       'customHandler_3': {
+           'formatter': 'short',
+           'class': 'logging.StreamHandler',
+           'filters': ['filter_warning_level'],
+       },
+   },
+   'loggers': {
+       'customLogger': {
+           'handlers': [
+               'customHandler_1',
+               'customHandler_2',
+               'customHandler_3'
+           ],
+           'level': 'DEBUG',
+       },
+   },
+}
+Add sample logs from views file.
+Please check :
+
+├── logging_formatter/views.py
+
+from rest_framework.response import Response
+from rest_framework.views import APIView
+import logging
+ 
+logger = logging.getLogger('customLogger')
+ 
+class UserView(APIView):
+   def get(self, request):
+       logger.info("Init log from view")
+       logger.warning("Init warning from view")
+       logger.error("Test error")
+      
+       return Response("Success")
+View different log formats for Info, Warning, and Error logs in the Django application.
+We can notice the following outcome on the console:
+
+INFO : Init log from view - [in /home/swan-13/Documents/project/blog-projects/repo/logging-formatter-repo/demo/logging_formatter/logging_formatter/views.py:9]
+WARNING : Init warning from view
+ERROR : 2020-04-11 13:57 {views} [get] Test error- [in /home/swan-13/Documents/project/blog-projects/repo/logging-formatter-repo/demo/logging_formatter/logging_formatter/views.py:11]
+Conclusion:
+We have created three different formats for three different log levels. I highly recommend this implementation in all Django web application development projects.
+
+Thank you for taking the time to read this article. I am sure it solves your multiple problems while providing support for the product built on the Django framework.
+
+If you are looking for a tool to search, read and manage logs please check Integrate Google Stackdriver logging with Django web application
+
+
+Enjoyed this article?
+Subscribe and Follow me on Twitter.
+
+SHARE ON
+TwitterFacebookWhatsAppGoogle+BufferLinkedInPin It
+Subscribe To Newsletter…
+Get Early Access To New Articles, Plugins, Methods, And Updates About What's New With DjangoCircle! Join Over 12 Million Monthly Readers... 
+
+E-Mail Address
+E-Mail Address
+ 
+Django Python Development Tutorials
+
+Leave a Reply
+Your email address will not be published. Required fields are marked *
+
+Comment
+
+Name * 
+
+Email * 
+
+Website 
+
+ Save my name, email, and website in this browser for the next time I comment.
+
+Search this website
+Join DjangoCircle Community
+Get fresh content from DjangoCircle
+      
+TOP TECH TUTORIALS
+ NEW How To Create Different Custom Logs Formatter For Info, Warning And Error Logs In Django Web Application?
+ How To Manage Nesting Of Logs In Google Stackdriver With Django Web Apps?
+ How To Integrate Stackdriver Logging With Django Web Application?
+TOP TECH STACK TUTORIALS
+Python Django Google Cloud
+
+An experienced python development company - that delivers with speed and accuracy.
+
+© 2020 Swan Softweb Solutions | All Rights Reserved.
